@@ -1,43 +1,46 @@
-import { useState } from 'react'
-import { useWorkoutContext } from '../hooks/useWorkoutContext'
+import { useState } from 'react';
+import { useWorkoutContext } from '../hooks/useWorkoutContext';
 
 function WorkoutForm() {
-    const {dispatch} = useWorkoutContext()
-    const [title, setTitle] = useState('')
-    const [load, setLoad] = useState('')
-    const [reps, setReps] = useState('')
-    const [error, setError] = useState(null)
+    const { dispatch } = useWorkoutContext();
+    const [title, setTitle] = useState('');
+    const [load, setLoad] = useState('');
+    const [reps, setReps] = useState('');
+    const [error, setError] = useState(null);
+    const [emptyFields, setEmptyFields] = useState([]);
 
     const handleSubmit = async (e) => {
-        e.preventDefault()
+        e.preventDefault();
 
-        const workout = { title, load, reps }
+        const workout = { title, load, reps };
 
         const response = await fetch('/api/workouts', {
             method: 'POST',
             body: JSON.stringify(workout),
-            headers:{
+            headers: {
                 'Content-Type': 'application/json'
             }
-        })
-        const json = await response.json()
+        });
+        const json = await response.json();
 
-        if(!response.ok){
-            setError(json.error)
-        }
-        if(response.ok){
-            setTitle('')
-            setLoad('')
-            setReps('')
-            setError(null)
-            alert('Workout added successfully!')
-            console.log(json)
+        if (!response.ok) {
+            setError(json.error);
+            // Ensure json.emptyFields is an array before setting state
+            setEmptyFields(Array.isArray(json.emptyFields) ? json.emptyFields : []);
+        } else {
+            setTitle('');
+            setLoad('');
+            setReps('');
+            setError(null);
+            setEmptyFields([]);
+            alert('Workout added successfully!');
+            console.log(json);
             dispatch({
                 type: 'CREATE_WORKOUT',
                 payload: json
-            })
+            });
         }
-    }
+    };
 
     return (
         <form className='create' onSubmit={handleSubmit}>
@@ -49,6 +52,7 @@ function WorkoutForm() {
                 type='text'
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
+                className={emptyFields.includes('title') ? 'empty' : ''}
             />
 
             <label>Load (kg):</label>
@@ -56,6 +60,7 @@ function WorkoutForm() {
                 type='number'
                 value={load}
                 onChange={(e) => setLoad(e.target.value)}
+                className={emptyFields.includes('load') ? 'empty' : ''}
             />
 
             <label>Reps:</label>
@@ -63,12 +68,13 @@ function WorkoutForm() {
                 type='number'
                 value={reps}
                 onChange={(e) => setReps(e.target.value)}
+                className={emptyFields.includes('reps') ? 'empty' : ''}
             />
 
             <button type='submit'>Add Workout</button>
             {error && <div className='error'>{error}</div>}
         </form>
-    )
+    );
 }
 
-export default WorkoutForm
+export default WorkoutForm;
