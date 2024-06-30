@@ -10,12 +10,11 @@ const Navbar = () => {
                 </Link>
                 <div className='links'>
                     <Link to="/">Home</Link>
-                    <hr />
-                    <Link to="/add">Add Workout</Link>
+                    <Link to="/signup">Signup</Link>
+                    <Link to="/login">Login</Link>
                 </div>
             </div>
         </header>
-
     )
 }
 
